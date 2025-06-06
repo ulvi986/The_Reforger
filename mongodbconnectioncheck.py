@@ -1,7 +1,7 @@
 
 from pymongo.mongo_client import MongoClient
 
-uri = "mongodb+srv://Reforger:1234@reforger.xxl2cem.mongodb.net/?retryWrites=true&w=majority&appName=Reforger"
+uri = "SECRET_KEY"
 
 # Create a new client and connect to the server
 client = MongoClient(uri)
