@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Searching System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            padding: 40px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
+            background-size: 30px 30px;
+            animation: float 20s linear infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-section {
+            padding: 40px;
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 0.95rem;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: #f9fafb;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #4f46e5;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .search-btn {
+            grid-column: 1 / -1;
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .search-btn:hover::before {
+            left: 100%;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(79, 70, 229, 0.3);
+        }
+
+        .search-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .results-section {
+            padding: 0 40px 40px;
+        }
+
+        .results-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .results-header h2 {
+            color: #1f2937;
+            font-size: 1.8rem;
+            margin-right: 15px;
+        }
+
+        .results-count {
+            background: #4f46e5;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+            padding: 20px 15px;
+            text-align: left;
+            font-weight: 700;
+            color: #374151;
+            border-bottom: 2px solid #d1d5db;
+            position: relative;
+        }
+
+        th::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 0;
+            height: 2px;
+            background: #4f46e5;
+            transition: all 0.3s ease;
+        }
+
+        th:hover::after {
+            width: 100%;
+            left: 0;
+        }
+
+        td {
+            padding: 18px 15px;
+            border-bottom: 1px solid #f3f4f6;
+            transition: all 0.2s ease;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .score-cell {
+            font-weight: 600;
+            text-align: center;
+            position: relative;
+        }
+
+        .score-high { color: #059669; }
+        .score-medium { color: #d97706; }
+        .score-low { color: #dc2626; }
+
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .no-results svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .search-form {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .form-section, .results-section {
+                padding: 20px;
+            }
+
+            table {
+                font-size: 0.85rem;
+            }
+
+            th, td {
+                padding: 12px 8px;
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎓 Student Searching System</h1>
+        </div>
+
+        <div class="form-section">
+            <form method="POST" class="search-form" onsubmit="showLoading()">
+                <div class="form-group">
+                    <label for="parent_id">📋 Parent ID:</label>
+                    <input type="text"
+                           id="parent_id"
+                           name="parent_id"
+                           placeholder="For example: P01"
+                           required
+                           pattern="[A-Za-z0-9]+"
+                           title="Yalnız hərf və rəqəmlər daxil edin">
+                </div>
+
+                <div class="form-group">
+                    <label for="parent_name">👤 Parent Name and Surname:</label>
+                    <input type="text"
+                           id="parent_name"
+                           name="parent_name"
+                           placeholder="For example: Elvin Mammadov"
+                           required
+                           pattern="[A-Za-zÇçĞğıİÖöŞşÜü\s]+"
+                           title="Yalnız hərf və boşluq daxil edin">
+                </div>
+
+                <button type="submit" class="search-btn">
+                    🔍 Start Searching
+                </button>
+            </form>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Axtarılır...</p>
+            </div>
+        </div>
+
+        {% if students %}
+        <div class="results-section">
+            <div class="results-header">
+                <h2>📊 Result</h2>
+                <span class="results-count">{{ students|length }} student found</span>
+            </div>
+
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>👤 Name</th>
+                            <th>👤 Surname</th>
+                            <th>🎯 Grade</th>
+                            <th>📈 Total_Score</th>
+                            <th>📋 Midterm Exam</th>
+                            <th>🏆 Final exam</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for student in students %}
+                        <tr>
+                            <td>{{ student.First_Name }}</td>
+                            <td>{{ student.Last_Name }}</td>
+                            <td>{{ student.Grade }}</td>
+                            <td class="score-cell {{ 'score-high' if student.Total_Score >= 80 else 'score-medium' if student.Total_Score >= 60 else 'score-low' }}">
+                                {{ student.Total_Score }}
+                            </td>
+                            <td class="score-cell {{ 'score-high' if student.Midterm_Score >= 80 else 'score-medium' if student.Midterm_Score >= 60 else 'score-low' }}">
+                                {{ student.Midterm_Score }}
+                            </td>
+                            <td class="score-cell {{ 'score-high' if student.Final_Score >= 80 else 'score-medium' if student.Final_Score >= 60 else 'score-low' }}">
+                                {{ student.Final_Score }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% else %}
+        <div class="results-section" style="display: none;" id="no-results">
+            <div class="no-results">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.44-1.01-5.93-2.62C8.08 10.77 10.13 9.5 12 9.5c1.87 0 3.92 1.27 5.93 2.88A7.963 7.963 0 0112 15z"></path>
+                </svg>
+                <h3>There is no result</h3>
+                <p>Please check searching system </p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function showLoading() {
+            document.getElementById('loading').style.display = 'block';
+        }
+
+        // Add smooth scrolling to results
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form');
+            const resultsSection = document.querySelector('.results-section');
+
+            if (resultsSection && resultsSection.style.display !== 'none') {
+                setTimeout(() => {
+                    resultsSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }, 100);
+            }
+        });
+
+        // Add input animations
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'scale(1.02)';
+            });
+
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
